@@ -40,16 +40,16 @@ const MIMC_ROUNDS: usize = 322;
 ///     return xL
 /// }
 /// ```
-fn mimc<E: Engine>(mut xl: Scalar, mut xr: Scalar, constants: &[Scalar]) -> Scalar {
+fn mimc<Scalar: PrimeField>(mut xl: Scalar, mut xr: Scalar, constants: &[Scalar]) -> Scalar {
     assert_eq!(constants.len(), MIMC_ROUNDS);
 
     for i in 0..MIMC_ROUNDS {
-        let mut tmp1: Scalar = xl.into();
+        let mut tmp1 = xl;
         tmp1 += constants[i];
         let mut tmp2 = tmp1;
-        tmp2.square();
-        tmp2 *= &tmp1;
-        tmp2 += &xr;
+        tmp2 = tmp2.square();
+        tmp2 *= tmp1;
+        tmp2 += xr;
         xr = xl;
         xl = tmp2;
     }
@@ -222,7 +222,7 @@ fn main() {
         // Generate a random preimage and compute the image
         let xl = Scalar::random(&mut *rng);
         let xr = Scalar::random(&mut *rng);
-        let image = mimc::<Bls12>(xl, xr, &constants);
+        let image = mimc(xl, xr, &constants);
 
         proof_vec.truncate(0);
 
@@ -237,7 +237,7 @@ fn main() {
             };
 
             // Create a groth16 proof with our parameters.
-            let proof = create_random_proof(c, params, rng).unwrap();
+            let proof = create_random_proof(c, params, &mut *rng).unwrap();
 
             proof.write(&mut proof_vec).unwrap();
         }
