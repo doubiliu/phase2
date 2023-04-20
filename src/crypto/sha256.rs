@@ -1,6 +1,5 @@
 //! Circuits for the [SHA-256] hash function and its internal compression
 //! function.
-//!
 //! [SHA-256]: https://tools.ietf.org/html/rfc6234
 
 use bellman::{ConstraintSystem, SynthesisError};
